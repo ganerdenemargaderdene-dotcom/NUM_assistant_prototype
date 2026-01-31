@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NUM Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0a0f1a;
+      --navy:#0b1630;
+      --blue:#246bff;
+      --cyan:#68e1ff;
+      --mint:#7cf6c7;
+      --sand:#fff4d6;
+      --panel:#ffffff;
+      --muted:#6b7a92;
+      --border:rgba(10,16,30,.08);
+      --shadow:0 14px 30px rgba(8,16,35,.18);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1000px 600px at 10% 15%, rgba(104,225,255,.28), transparent 60%),
+        radial-gradient(900px 650px at 85% 20%, rgba(124,246,199,.22), transparent 60%),
+        linear-gradient(160deg, #f6fbff 0%, #eaf2ff 45%, #fef6e6 100%);
+      overflow:hidden;
+    }
+
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:18px;
+      padding:18px;
+    }
+
+    .rail{
+      background:
+        radial-gradient(700px 420px at 20% 0%, rgba(104,225,255,.22), transparent 60%),
+        radial-gradient(700px 520px at 85% 40%, rgba(124,246,199,.18), transparent 60%),
+        linear-gradient(160deg, #f8fcff 0%, #eaf3ff 55%, #fef6e9 100%);
+      color:var(--ink);
+      border-radius:22px;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--border);
+    }
+    .rail::after{
+      content:"";
+      position:absolute; inset:-40% -30% auto auto;
+      width:280px; height:280px; border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, rgba(104,225,255,.30), transparent 70%);
+      filter:blur(8px);
+      pointer-events:none;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      font-weight:700; letter-spacing:.2px;
+    }
+    .orb{
+      width:36px; height:36px; border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, #fff, var(--cyan) 45%, #3ea9ff 75%);
+      box-shadow:0 0 24px rgba(104,225,255,.35);
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .brand h1{
+      margin:0; font-size:18px; font-family:"Fraunces",serif;
+    }
+    .brand p{
+      margin:2px 0 0; font-size:12px; color:rgba(40,60,90,.7);
+    }
+
+    .railCard{
+      background:rgba(255,255,255,.7);
+      border:1px solid rgba(10,16,30,.08);
+      border-radius:16px;
+      padding:12px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .railTitle{font-size:12px; font-weight:700; color:#5f6f86; letter-spacing:.4px}
+    .railBtn{
+      height:44px;
+      border-radius:12px;
+      border:1px solid rgba(10,16,30,.12);
+      background:rgba(255,255,255,.9);
+      color:var(--navy);
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .06s ease, background .2s;
+    }
+    .railBtn:hover{background:#ffffff}
+    .railBtn:active{transform:translateY(1px)}
+    .railBtn.danger{background:rgba(255,80,80,.12); border-color:rgba(255,80,80,.35)}
+
+    .chips{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      border-radius:999px;
+      padding:6px 12px;
+      background:rgba(36,107,255,.10);
+      border:1px solid rgba(36,107,255,.25);
+      color:#1a2a4a;
+      font-weight:700; font-size:12px;
+      cursor:pointer;
+    }
+    .chip:hover{background:rgba(36,107,255,.16)}
+
+    .langToggle{
+      display:flex; gap:8px;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(10,16,30,.12);
+      border-radius:999px;
+      padding:6px;
+      width:max-content;
+    }
+    .langBtn{
+      border:none; background:transparent; color:#1a2a4a;
+      font-weight:800; padding:6px 12px; border-radius:999px; cursor:pointer;
+      opacity:.75;
+    }
+    .langBtn.active{background:rgba(36,107,255,.14); opacity:1}
+
+    .main{
+      background:var(--panel);
+      border-radius:24px;
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+    .top{
+      padding:18px 20px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      background:linear-gradient(90deg, #ffffff 0%, #f6f9ff 100%);
+    }
+    .top h2{margin:0; font-family:"Fraunces",serif; font-size:22px}
+    .status{
+      font-size:12px; color:var(--muted);
+      display:flex; align-items:center; gap:6px;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background:#ffd166;
+    }
+    .dot.online{background:#3ddc97}
+    .dot.offline{background:#ff6b6b}
+
+    .messages{
+      flex:1;
+      overflow:auto;
+      padding:22px 22px 120px;
+      background:
+        radial-gradient(800px 500px at 80% 0%, rgba(104,225,255,.08), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .row{display:flex; gap:12px; margin:14px 0;}
+    .row.user{justify-content:flex-end;}
+    .bubble{
+      max-width:min(720px, 80vw);
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(10,16,30,.08);
+      box-shadow:0 8px 20px rgba(8,16,35,.08);
+      white-space:pre-wrap;
+      line-height:1.4;
+    }
+    .row.user .bubble{
+      background:linear-gradient(135deg, #2a7bff, #22b7ff);
+      color:white; border:none; font-weight:700;
+    }
+    .row.bot .bubble{background:#fff}
+    .botIcon{
+      width:34px; height:34px; border-radius:50%;
+      background:#f2f6ff; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      flex:0 0 auto;
+    }
+
+    .inputBar{
+      position:sticky; bottom:0;
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.98));
+      display:flex; gap:12px; align-items:center;
+    }
+    textarea{
+      flex:1; height:48px; resize:none;
+      border-radius:14px; border:1px solid var(--border);
+      padding:10px 12px;
+      font:inherit; color:var(--ink);
+      outline:none;
+    }
+    textarea:focus-visible{outline:2px solid rgba(36,107,255,.25); border-color:transparent}
+    .send{
+      height:48px; min-width:120px;
+      border-radius:14px; border:none;
+      background:var(--navy); color:white; font-weight:800;
+      cursor:pointer; letter-spacing:.4px;
+    }
+    .send:active{transform:translateY(1px)}
+
+    @media (max-width: 980px){
+      .app{grid-template-columns: 1fr; padding:12px;}
+      .rail{order:2}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="rail">
+      <div class="brand">
+        <div class="orb"></div>
+        <div>
+          <h1 id="brandTitle">NUM Assistant</h1>
+          <p id="brandSubtitle">Student helper</p>
+        </div>
+      </div>
+
+      <div class="railCard">
+        <div class="railTitle">QUICK ACTIONS</div>
+        <button class="railBtn" id="newChatBtn">New chat</button>
+        <button class="railBtn danger" id="clearBtn">Clear history</button>
+      </div>
+
+      <div class="railCard">
+        <div class="railTitle">SUGGESTIONS</div>
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="railCard">
+        <div class="railTitle">LANGUAGE</div>
+        <div class="langToggle">
+          <button class="langBtn" id="mnBtn">MN</button>
+          <button class="langBtn" id="enBtn">EN</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="top">
+        <h2 id="heroTitle">NUM Assistant</h2>
+        <div class="status">
+          <span class="dot" id="connDot"></span>
+          <span id="connText">connecting…</span>
+        </div>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="inputBar">
+        <textarea id="msg" rows="1" placeholder="Асуултаа энд бичнэ үү…"></textarea>
+        <button class="send" id="sendBtn">SEND</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const RASA_URL = "http://localhost:5005/webhooks/rest/webhook";
+    const STORAGE_KEY = "num_ui_state_v1";
+    const LANG_KEY = "num_ui_lang_v1";
+
+    const I18N = {
+      mn: {
+        brand: "NUM туслах",
+        subtitle: "Оюутны туслах",
+        title: "NUM туслах",
+        placeholder: "Асуултаа энд бичнэ үү…",
+        send: "ИЛГЭЭХ",
+        newChat: "Шинэ чат",
+        clear: "Түүх цэвэрлэх",
+        chips: [
+          { label: "Сайн уу", text: "Сайн уу" },
+          { label: "Голч бодъё", text: "голч бодъё" },
+          { label: "Төлбөр бодоорой", text: "төлбөр бодоорой" },
+          { label: "Байршлууд", text: "байршлууд" }
+        ],
+        connecting: "холбогдож байна…",
+        online: "онлайн",
+        offline: "offline",
+        err: "⚠️ Холболтын алдаа. Rasa ажиллаж байгаа эсэхийг шалгаарай."
+      },
+      en: {
+        brand: "NUM Assistant",
+        subtitle: "Student helper",
+        title: "NUM Assistant",
+        placeholder: "Type your question here…",
+        send: "SEND",
+        newChat: "New chat",
+        clear: "Clear history",
+        chips: [
+          { label: "Hello", text: "hello" },
+          { label: "Calculate GPA", text: "calculate gpa" },
+          { label: "Tuition", text: "calculate tuition" },
+          { label: "Locations", text: "locations" }
+        ],
+        connecting: "connecting…",
+        online: "online",
+        offline: "offline",
+        err: "⚠️ Connection error. Check your Rasa servers."
+      }
+    };
+
+    const els = {
+      brandTitle: document.getElementById("brandTitle"),
+      brandSubtitle: document.getElementById("brandSubtitle"),
+      heroTitle: document.getElementById("heroTitle"),
+      msg: document.getElementById("msg"),
+      sendBtn: document.getElementById("sendBtn"),
+      messages: document.getElementById("messages"),
+      chips: document.getElementById("chips"),
+      mnBtn: document.getElementById("mnBtn"),
+      enBtn: document.getElementById("enBtn"),
+      newChatBtn: document.getElementById("newChatBtn"),
+      clearBtn: document.getElementById("clearBtn"),
+      connDot: document.getElementById("connDot"),
+      connText: document.getElementById("connText")
+    };
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+      return { messages: [] };
+    }
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    const state = loadState();
+
+    function getLang(){ return localStorage.getItem(LANG_KEY) || "mn"; }
+    function setLang(lang){
+      localStorage.setItem(LANG_KEY, lang);
+      renderLang();
+      renderChips();
+      silentSend(lang === "en" ? "LANG_EN" : "LANG_MN");
+    }
+
+    function renderLang(){
+      const t = I18N[getLang()];
+      els.brandTitle.textContent = t.brand;
+      els.brandSubtitle.textContent = t.subtitle;
+      els.heroTitle.textContent = t.title;
+      els.msg.placeholder = t.placeholder;
+      els.sendBtn.textContent = t.send;
+      els.newChatBtn.textContent = t.newChat;
+      els.clearBtn.textContent = t.clear;
+      els.mnBtn.classList.toggle("active", getLang() === "mn");
+      els.enBtn.classList.toggle("active", getLang() === "en");
+      els.connText.textContent = t.connecting;
+    }
+
+    function renderChips(){
+      const t = I18N[getLang()];
+      els.chips.innerHTML = "";
+      t.chips.forEach(c => {
+        const btn = document.createElement("button");
+        btn.className = "chip";
+        btn.textContent = c.label;
+        btn.addEventListener("click", () => sendMessage(c.text));
+        els.chips.appendChild(btn);
+      });
+    }
+
+    function addMessage(role, text){
+      state.messages.push({ role, text });
+      saveState();
+      renderMessages();
+    }
+
+    function renderMessages(){
+      els.messages.innerHTML = "";
+      for(const m of state.messages){
+        const row = document.createElement("div");
+        row.className = "row " + (m.role === "user" ? "user" : "bot");
+        if(m.role === "bot"){
+          const icon = document.createElement("div");
+          icon.className = "botIcon";
+          icon.textContent = "🔵";
+          row.appendChild(icon);
+        }
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = m.text;
+        row.appendChild(bubble);
+        els.messages.appendChild(row);
+      }
+      els.messages.scrollTo({ top: els.messages.scrollHeight, behavior: "smooth" });
+    }
+
+    async function sendToRasa(text){
+      const payload = { sender: "web_ui", message: text };
+      const res = await fetch(RASA_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("bad response");
+      return await res.json();
+    }
+
+    async function silentSend(text){
+      try{ await sendToRasa(text); }catch(e){}
+    }
+
+    async function sendMessage(text){
+      const t = I18N[getLang()];
+      const input = (text || els.msg.value || "").trim();
+      if(!input) return;
+      els.msg.value = "";
+      addMessage("user", input);
+
+      try{
+        const replies = await sendToRasa(input);
+        if(Array.isArray(replies) && replies.length){
+          replies.forEach(r => {
+            if(r && r.text) addMessage("bot", r.text);
+          });
+        }else{
+          addMessage("bot", t.err);
+        }
+      }catch(e){
+        addMessage("bot", t.err);
+      }
+    }
+
+    async function checkConnection(){
+      const t = I18N[getLang()];
+      els.connText.textContent = t.connecting;
+      try{
+        const res = await fetch(RASA_URL, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ sender:"ping", message:"ping" })
+        });
+        if(res.ok){
+          els.connDot.classList.add("online");
+          els.connDot.classList.remove("offline");
+          els.connText.textContent = t.online;
+          return;
+        }
+      }catch(e){}
+      els.connDot.classList.add("offline");
+      els.connDot.classList.remove("online");
+      els.connText.textContent = t.offline;
+    }
+
+    els.sendBtn.addEventListener("click", () => sendMessage());
+    els.msg.addEventListener("keydown", (e)=>{ if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); }});
+    els.mnBtn.addEventListener("click", () => setLang("mn"));
+    els.enBtn.addEventListener("click", () => setLang("en"));
+    els.newChatBtn.addEventListener("click", () => { state.messages = []; saveState(); renderMessages(); silentSend("reset"); });
+    els.clearBtn.addEventListener("click", () => { state.messages = []; saveState(); renderMessages(); });
+
+    renderLang();
+    renderChips();
+    renderMessages();
+    checkConnection();
+    silentSend(getLang() === "en" ? "LANG_EN" : "LANG_MN");
+  </script>
+</body>
+</html>
